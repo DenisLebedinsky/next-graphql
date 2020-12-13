@@ -13,18 +13,21 @@ import cors from "cors";
 import { createConnection } from "typeorm";
 import { Post } from "./entities/Post";
 import { User } from "./entities/User";
+import path from "path";
 
 const main = async () => {
-  // const conn =
-   await createConnection({
+  const conn = await createConnection({
     type: "postgres",
     database: "lireddit2",
     username: "admin",
     password: "admin123",
     logging: true,
+    migrations: [path.join(__dirname, "./migrations/*")],
     synchronize: true,
     entities: [Post, User],
   });
+
+  conn.runMigrations();
 
   const app = express();
 
@@ -40,7 +43,7 @@ const main = async () => {
     session({
       name: COOKIE_NAME,
       store: new RedisStore({
-        client: redis  as any,
+        client: redis as any,
         disableTouch: true,
       }),
       cookie: {
